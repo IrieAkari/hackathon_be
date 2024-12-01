@@ -202,7 +202,14 @@ func main() {
 	closeDBWithSysCall()
 
 	log.Println("Listening...")
-	if err := http.ListenAndServe(":8080", handler); err != nil {
+
+	// 環境変数からポート番号を取得
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	if err := http.ListenAndServe(":"+port, handler); err != nil {
 		log.Fatal(err)
 	}
 }
