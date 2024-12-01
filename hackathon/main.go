@@ -39,10 +39,10 @@ func init() {
 		log.Fatalf("Error loading .env file")
 	}
 
-	mysqlUser := os.Getenv("MYSQL_USER")
-	mysqlPwd := os.Getenv("MYSQL_PWD")
-	mysqlHost := os.Getenv("MYSQL_HOST")
-	mysqlDatabase := os.Getenv("MYSQL_DATABASE")
+	mysqlUser := irie
+	mysqlPwd := 20030110
+	mysqlHost := unix(/cloudsql/irieuttc:us-central1:uttc)
+	mysqlDatabase := hackathon
 
 	connStr := fmt.Sprintf("%s:%s@tcp(%s)/%s", mysqlUser, mysqlPwd, mysqlHost, mysqlDatabase)
 	_db, err := sql.Open("mysql", connStr)
