@@ -13,7 +13,7 @@ RUN go mod download
 COPY . .
 
 # アプリケーションをビルド
-RUN go build -o main --platform linux/amd64 .
+RUN go build -o main .
 
 # ポート 8080 を公開
 EXPOSE 8080
