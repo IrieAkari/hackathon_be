@@ -5,7 +5,7 @@ FROM golang:1.23
 WORKDIR /app
 
 # Go モジュールの初期化と依存関係のダウンロード
-COPY go.mod ./
+COPY go.mod go.sum ./
 # go.sum ファイルが存在しない場合の対処
 RUN go mod download
 
