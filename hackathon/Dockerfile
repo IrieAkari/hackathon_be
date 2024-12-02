@@ -1,11 +1,11 @@
-# ベースイメージとして Go 1.21 を使用
+# ベースイメージとして Go 1.23 を使用
 FROM golang:1.23
 
 # 作業ディレクトリを設定
 WORKDIR /app
 
 # Go モジュールの初期化と依存関係のダウンロード
-COPY go.mod go.sum ./
+COPY go.mod ./
 # go.sum ファイルが存在しない場合の対処
 RUN go mod download
 
@@ -14,6 +14,8 @@ COPY . .
 
 # アプリケーションをビルド
 RUN go build -o main .
+
+
 
 # ポート 8080 を公開
 EXPOSE 8080
