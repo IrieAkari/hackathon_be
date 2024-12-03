@@ -39,7 +39,6 @@ func initDB() {
 
 	dbUser := os.Getenv("MYSQL_USER")
 	dbPwd := os.Getenv("MYSQL_PWD")
-	log.Println("MYSQL_PWD: ", dbPwd)
 	dbName := os.Getenv("MYSQL_DATABASE")
 	dbHost := os.Getenv("MYSQL_HOST")
 
