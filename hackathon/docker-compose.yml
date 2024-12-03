@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+
+  #hackathon_beコンテナが起動
+  #Dockerfileを使ってGoをビルドし実行
+  # hackathon_be:
+  #   container_name: hackathon_be
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   platform: linux/amd64
+  #   tty: true
+  #   ports:
+  #     - "8080:8080"
+  #   env_file:
+  #     - ./.env
+  #   depends_on:
+  #     - mysql
+
+  #Mysqlコンテナ
+  #MySQLデータベースを起動
+
+
+
+  hackathon_sql:
+    image: mysql:8.0
+    container_name: hackathon_sql
+    platform: linux/x86_64
+    tty: true
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: hackathon
+      MYSQL_USER: irie
+      MYSQL_PASSWORD: iriepassword
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./database/user.sql:/docker-entrypoint-initdb.d/user.sql
+
+
+volumes:
+  mysql-data:
