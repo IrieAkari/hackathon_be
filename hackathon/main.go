@@ -53,7 +53,7 @@ func initDB() {
 
 	if errPing := DB.Ping(); errPing != nil {
 		//log.Fatalf("Akari! Failed to ping database: %v", err)
-		log.Println("Akari! Failed to ping database: %v", errPing)
+		log.Println("Failed to ping database: %v", errPing)
 	}
 
 	log.Println("Connected to database successfully")
@@ -129,12 +129,49 @@ func closeDBWithSysCall() {
 	}()
 }
 
+func allhandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	rows, err := DB.Query("SELECT id, name, age FROM user")
+	if err != nil {
+		log.Printf("fail: db.Query, %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	users := make([]UserResForHTTPGet, 0)
+	for rows.Next() {
+		var u UserResForHTTPGet
+		if err := rows.Scan(&u.Id, &u.Name, &u.Age); err != nil {
+			log.Printf("fail: rows.Scan, %v\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		users = append(users, u)
+	}
+
+	bytes, err := json.Marshal(users)
+	if err != nil {
+		log.Printf("fail: json.Marshal, %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(bytes)
+}
+
 func main() {
 
 	initDB()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/user", handler)
+	mux.HandleFunc("/users", allhandler)
 
 	handler := cors.Default().Handler(mux)
 
