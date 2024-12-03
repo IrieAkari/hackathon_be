@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.23.3-alpine AS builder
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
@@ -16,4 +16,5 @@ FROM alpine:latest
 WORKDIR /app
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /app/main /app/main
+
 CMD ["./main"]

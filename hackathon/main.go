@@ -34,11 +34,12 @@ var DB *sql.DB
 func initDB() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		log.Println("No .env file found. Proceeding with environment variables...")
 	}
 
 	dbUser := os.Getenv("MYSQL_USER")
 	dbPwd := os.Getenv("MYSQL_PWD")
+	//log.Println("MYSQL_PWD: ", dbPwd)
 	dbName := os.Getenv("MYSQL_DATABASE")
 	dbHost := os.Getenv("MYSQL_HOST")
 
@@ -51,8 +52,9 @@ func initDB() {
 		log.Fatalf("Failed to open database: %v", errDB)
 	}
 
-	if err := DB.Ping(); err != nil {
-		log.Fatalf("Failed to ping database: %v", err)
+	if errPing := DB.Ping(); errPing != nil {
+		//log.Fatalf("Akari! Failed to ping database: %v", err)
+		log.Println("Akari! Failed to ping database: %v", err)
 	}
 
 	log.Println("Connected to database successfully")
