@@ -11,16 +11,18 @@ services:
       - "8000:8000"
     # env_file:
     #   - .env
+
+    #docker-compose upで起動するときにgoが読み込む環境変数
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: hackathon
       MYSQL_USER: irie
-      MYSQL_PASSWORD: iriepassword
-      MYSQL_HOST: tcp(localhost:3307)
-
-
+      MYSQL_PWD: iriepassword
+      MYSQL_HOST: tcp(hackathon_sql:3306)
     depends_on:
       - hackathon_sql
+
+  
   #hackathon_beコンテナが起動
   #Dockerfileを使ってGoをビルドし実行
   # hackathon_be:

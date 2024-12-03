@@ -39,7 +39,7 @@ func initDB() {
 
 	dbUser := os.Getenv("MYSQL_USER")
 	dbPwd := os.Getenv("MYSQL_PWD")
-	//log.Println("MYSQL_PWD: ", dbPwd)
+	log.Println("MYSQL_PWD: ", dbPwd)
 	dbName := os.Getenv("MYSQL_DATABASE")
 	dbHost := os.Getenv("MYSQL_HOST")
 
@@ -54,7 +54,7 @@ func initDB() {
 
 	if errPing := DB.Ping(); errPing != nil {
 		//log.Fatalf("Akari! Failed to ping database: %v", err)
-		log.Println("Akari! Failed to ping database: %v", err)
+		log.Println("Akari! Failed to ping database: %v", errPing)
 	}
 
 	log.Println("Connected to database successfully")
