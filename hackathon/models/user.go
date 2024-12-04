@@ -7,7 +7,6 @@ type UserResForHTTPGet struct {
 }
 
 type UserReqForHTTPPost struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }

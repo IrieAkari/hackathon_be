@@ -17,7 +17,8 @@ func main() {
 	utils.InitDB()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/user", handlers.UserGetHandler)
+	mux.HandleFunc("/username", handlers.UserNameGetHandler)
+	mux.HandleFunc("/useremail", handlers.UserEmailGetHandler)
 	mux.HandleFunc("/register", handlers.RegisterPostHandler)
 	mux.HandleFunc("/users", handlers.UsersGetHandler)
 

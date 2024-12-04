@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func UserGetHandler(w http.ResponseWriter, r *http.Request) {
+func UserNameGetHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	if name == "" {
 		log.Println("Name is empty")
