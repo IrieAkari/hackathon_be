@@ -16,7 +16,7 @@ func UserGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := utils.DB.Query("SELECT id, name, age FROM user WHERE name = ?", name)
+	rows, err := utils.DB.Query("SELECT id, name, email FROM users WHERE name = ?", name)
 	if err != nil {
 		log.Printf("Query error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -27,7 +27,7 @@ func UserGetHandler(w http.ResponseWriter, r *http.Request) {
 	var users []models.UserResForHTTPGet
 	for rows.Next() {
 		var user models.UserResForHTTPGet
-		if err := rows.Scan(&user.Id, &user.Name, &user.Age); err != nil {
+		if err := rows.Scan(&user.Id, &user.Name, &user.Email); err != nil {
 			log.Printf("Scan error: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
