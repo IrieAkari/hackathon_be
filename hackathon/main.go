@@ -17,15 +17,8 @@ func main() {
 	utils.InitDB()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			handlers.UserGetHandler(w, r)
-		} else if r.Method == http.MethodPost {
-			handlers.UserPostHandler(w, r)
-		} else {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	})
+	mux.HandleFunc("/user", handlers.UserGetHandler)
+	mux.HandleFunc("/register", handlers.RegisterPostHandler)
 	mux.HandleFunc("/users", handlers.UsersGetHandler)
 
 	handler := cors.Default().Handler(mux)
