@@ -6,6 +6,14 @@ import (
 	"net/http"
 )
 
+//リプライも削除する
+//再帰
+//
+//
+//
+//
+//
+
 func PostDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	postId := r.URL.Query().Get("postid")
 	if postId == "" {

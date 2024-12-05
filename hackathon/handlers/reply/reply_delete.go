@@ -6,6 +6,13 @@ import (
 	"net/http"
 )
 
+//リプライへのリプライも削除
+//
+//
+//
+//
+//
+
 func ReplyDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	replyId := r.URL.Query().Get("replyid")
 	if replyId == "" {
@@ -18,6 +25,16 @@ func ReplyDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Transaction begin error: %v", err)
 		http.Error(w, "Failed to begin transaction", http.StatusInternalServerError)
+		return
+	}
+
+	// 親投稿のIDを取得
+	var parentId string
+	err = tx.QueryRow("SELECT parent_id FROM posts WHERE id = ?", replyId).Scan(&parentId)
+	if err != nil {
+		tx.Rollback()
+		log.Printf("Query parent_id error: %v", err)
+		http.Error(w, "Failed to get parent_id", http.StatusInternalServerError)
 		return
 	}
 
@@ -36,6 +53,15 @@ func ReplyDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		tx.Rollback()
 		log.Printf("Delete reply error: %v", err)
 		http.Error(w, "Failed to delete reply", http.StatusInternalServerError)
+		return
+	}
+
+	// 親投稿のリプライ数を-1
+	_, err = tx.Exec("UPDATE posts SET replys_count = replys_count - 1 WHERE id = ?", parentId)
+	if err != nil {
+		tx.Rollback()
+		log.Printf("Update replys_count error: %v", err)
+		http.Error(w, "Failed to update replys_count", http.StatusInternalServerError)
 		return
 	}
 

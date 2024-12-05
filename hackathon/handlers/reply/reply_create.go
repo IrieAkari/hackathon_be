@@ -41,10 +41,32 @@ func ReplyCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	replyId := ulid.MustNew(ulid.Timestamp(time.Now()), rand.New(rand.NewSource(time.Now().UnixNano()))).String()
 
-	_, err = utils.DB.Exec("INSERT INTO posts (id, user_id, content, parent_id) VALUES (?, ?, ?, ?)", replyId, userId, req.Content, req.ParentId)
+	tx, err := utils.DB.Begin()
 	if err != nil {
+		log.Printf("Transaction begin error: %v", err)
+		http.Error(w, "Failed to begin transaction", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = tx.Exec("INSERT INTO posts (id, user_id, content, parent_id) VALUES (?, ?, ?, ?)", replyId, userId, req.Content, req.ParentId)
+	if err != nil {
+		tx.Rollback()
 		log.Printf("Insert error: %v", err)
 		http.Error(w, "Failed to create reply", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = tx.Exec("UPDATE posts SET replys_count = replys_count + 1 WHERE id = ?", req.ParentId)
+	if err != nil {
+		tx.Rollback()
+		log.Printf("Update replys_count error: %v", err)
+		http.Error(w, "Failed to update replys_count", http.StatusInternalServerError)
+		return
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.Printf("Transaction commit error: %v", err)
+		http.Error(w, "Failed to commit transaction", http.StatusInternalServerError)
 		return
 	}
 
