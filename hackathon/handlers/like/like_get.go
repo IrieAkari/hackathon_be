@@ -1,48 +1,51 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"hackathon/utils"
 	"log"
 	"net/http"
 )
 
-type GetLikeRequest struct {
-	UserId string `json:"user_id"`
+type Like struct {
 	PostId string `json:"post_id"`
 }
 
-type GetLikeResponse struct {
-	LikeId *string `json:"like_id"`
-}
-
 func LikeGetHandler(w http.ResponseWriter, r *http.Request) {
-	var req GetLikeRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Printf("Decode error: %v", err)
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+	email := r.URL.Query().Get("email")
+	if email == "" {
+		log.Println("Email is empty")
+		http.Error(w, "Email is empty", http.StatusBadRequest)
 		return
 	}
 
-	if req.UserId == "" || req.PostId == "" {
-		log.Println("User ID or Post ID is empty")
-		http.Error(w, "User ID or Post ID is empty", http.StatusBadRequest)
+	var userId string
+	err := utils.DB.QueryRow("SELECT id FROM users WHERE email = ?", email).Scan(&userId)
+	if err != nil {
+		log.Printf("User not found: %v", err)
+		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
-	var likeId *string
-	err := utils.DB.QueryRow("SELECT id FROM likes WHERE user_id = ? AND post_id = ?", req.UserId, req.PostId).Scan(&likeId)
-	if err != nil && err != sql.ErrNoRows {
+	rows, err := utils.DB.Query("SELECT post_id FROM likes WHERE user_id = ?", userId)
+	if err != nil {
 		log.Printf("Query error: %v", err)
-		http.Error(w, "Failed to fetch like", http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch likes", http.StatusInternalServerError)
 		return
 	}
+	defer rows.Close()
 
-	response := GetLikeResponse{
-		LikeId: likeId,
+	var likes []Like
+	for rows.Next() {
+		var like Like
+		if err := rows.Scan(&like.PostId); err != nil {
+			log.Printf("Scan error: %v", err)
+			http.Error(w, "Failed to scan like", http.StatusInternalServerError)
+			return
+		}
+		likes = append(likes, like)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(likes)
 }
