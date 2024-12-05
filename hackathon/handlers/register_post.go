@@ -22,7 +22,7 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	id := ulid.MustNew(ulid.Timestamp(time.Now()), rand.New(rand.NewSource(time.Now().UnixNano()))).String()
 
-	_, err := utils.DB.Exec("INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)", id, user.Name, user.Email, user.Password)
+	_, err := utils.DB.Exec("INSERT INTO users (id, name, email) VALUES (?, ?, ?)", id, user.Name, user.Email)
 	if err != nil {
 		log.Printf("Insert error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
