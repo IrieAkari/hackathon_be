@@ -7,7 +7,7 @@ import (
 )
 
 func PostDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	postId := r.URL.Query().Get("post_id")
+	postId := r.URL.Query().Get("postid")
 	if postId == "" {
 		log.Println("Post ID is empty")
 		http.Error(w, "Post ID is empty", http.StatusBadRequest)

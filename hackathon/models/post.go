@@ -5,3 +5,10 @@ type Post struct {
 	UserId  string `json:"user_id"`
 	Content string `json:"content"`
 }
+
+type PostWithUserName struct {
+	Id       string `json:"id"`
+	UserId   string `json:"user_id"`
+	UserName string `json:"user_name"`
+	Content  string `json:"content"`
+}

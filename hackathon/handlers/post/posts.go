@@ -9,7 +9,12 @@ import (
 )
 
 func PostsGetHandler(w http.ResponseWriter, r *http.Request) {
-	rows, err := utils.DB.Query("SELECT id, user_id, content FROM posts WHERE parent_id IS NULL")
+	rows, err := utils.DB.Query(`
+        SELECT posts.id, posts.user_id, users.name AS user_name, posts.content 
+        FROM posts 
+        JOIN users ON posts.user_id = users.id 
+        WHERE posts.parent_id IS NULL
+    `)
 	if err != nil {
 		log.Printf("Query error: %v", err)
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
@@ -17,10 +22,10 @@ func PostsGetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var posts []models.Post
+	var posts []models.PostWithUserName
 	for rows.Next() {
-		var post models.Post
-		if err := rows.Scan(&post.Id, &post.UserId, &post.Content); err != nil {
+		var post models.PostWithUserName
+		if err := rows.Scan(&post.Id, &post.UserId, &post.UserName, &post.Content); err != nil {
 			log.Printf("Scan error: %v", err)
 			http.Error(w, "Failed to scan post", http.StatusInternalServerError)
 			return

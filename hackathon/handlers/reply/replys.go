@@ -16,7 +16,12 @@ func ReplysGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := utils.DB.Query("SELECT id, user_id, content FROM posts WHERE parent_id = ?", parentId)
+	rows, err := utils.DB.Query(`
+        SELECT posts.id, posts.user_id, users.name AS user_name, posts.content 
+        FROM posts 
+        JOIN users ON posts.user_id = users.id 
+        WHERE posts.parent_id = ?
+    `, parentId)
 	if err != nil {
 		log.Printf("Query error: %v", err)
 		http.Error(w, "Failed to fetch replies", http.StatusInternalServerError)
@@ -24,10 +29,10 @@ func ReplysGetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var replies []models.Post
+	var replies []models.PostWithUserName
 	for rows.Next() {
-		var reply models.Post
-		if err := rows.Scan(&reply.Id, &reply.UserId, &reply.Content); err != nil {
+		var reply models.PostWithUserName
+		if err := rows.Scan(&reply.Id, &reply.UserId, &reply.UserName, &reply.Content); err != nil {
 			log.Printf("Scan error: %v", err)
 			http.Error(w, "Failed to scan reply", http.StatusInternalServerError)
 			return
