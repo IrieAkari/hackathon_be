@@ -12,7 +12,7 @@ import (
 	"github.com/oklog/ulid"
 )
 
-func RegisterPostHandler(w http.ResponseWriter, r *http.Request) {
+func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.UserReqForHTTPPost
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		log.Printf("Decode error: %v", err)
