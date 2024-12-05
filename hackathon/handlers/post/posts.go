@@ -10,10 +10,11 @@ import (
 
 func PostsGetHandler(w http.ResponseWriter, r *http.Request) {
 	rows, err := utils.DB.Query(`
-        SELECT posts.id, posts.user_id, users.name AS user_name, posts.content 
-        FROM posts 
-        JOIN users ON posts.user_id = users.id 
+        SELECT posts.id, posts.user_id, users.name AS user_name, posts.content, posts.created_at
+        FROM posts
+        JOIN users ON posts.user_id = users.id
         WHERE posts.parent_id IS NULL
+        ORDER BY posts.created_at DESC
     `)
 	if err != nil {
 		log.Printf("Query error: %v", err)
@@ -25,7 +26,7 @@ func PostsGetHandler(w http.ResponseWriter, r *http.Request) {
 	var posts []models.PostWithUserName
 	for rows.Next() {
 		var post models.PostWithUserName
-		if err := rows.Scan(&post.Id, &post.UserId, &post.UserName, &post.Content); err != nil {
+		if err := rows.Scan(&post.Id, &post.UserId, &post.UserName, &post.Content, &post.CreatedAt); err != nil {
 			log.Printf("Scan error: %v", err)
 			http.Error(w, "Failed to scan post", http.StatusInternalServerError)
 			return
