@@ -6,6 +6,11 @@ import (
 	"net/http"
 )
 
+//ユーザーの削除方法を考え直す
+//
+//
+//
+
 func UserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.URL.Query().Get("email")
 	if email == "" {
