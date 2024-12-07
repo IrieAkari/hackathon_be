@@ -7,7 +7,10 @@ import (
 	_ "os/signal"
 	_ "syscall"
 
-	"hackathon/handlers"
+	likeHandlers "hackathon/handlers/like"
+	postHandlers "hackathon/handlers/post"
+	replyHandlers "hackathon/handlers/reply"
+	userHandlers "hackathon/handlers/user"
 	"hackathon/utils"
 
 	"github.com/rs/cors"
@@ -17,10 +20,21 @@ func main() {
 	utils.InitDB()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/username", handlers.UserNameGetHandler)
-	mux.HandleFunc("/useremail", handlers.UserEmailGetHandler)
-	mux.HandleFunc("/register", handlers.RegisterPostHandler)
-	mux.HandleFunc("/users", handlers.UsersGetHandler)
+	mux.HandleFunc("/username", userHandlers.UserNameGetHandler)      // GET /username?name=...
+	mux.HandleFunc("/useremail", userHandlers.UserEmailGetHandler)    // GET /useremail?email=...
+	mux.HandleFunc("/userdelete", userHandlers.UserDeleteHandler)     // GET /userdelete?email=...
+	mux.HandleFunc("/userregister", userHandlers.UserRegisterHandler) // POST /userregister (name, email, password)
+	mux.HandleFunc("/users", userHandlers.UsersGetHandler)            // GET /users
+	mux.HandleFunc("/postcreate", postHandlers.PostCreateHandler)     // POST /postcreate (email, content)
+	mux.HandleFunc("/postdelete", postHandlers.PostDeleteHandler)     // GET /postdelete?postid=...
+	mux.HandleFunc("/posts", postHandlers.PostsGetHandler)            // GET /posts
+	mux.HandleFunc("/postget", postHandlers.PostGetHandler)           // GET /postget?postid=...
+	mux.HandleFunc("/replycreate", replyHandlers.ReplyCreateHandler)  // POST /replycreate (email, content, parent_id)
+	mux.HandleFunc("/replydelete", replyHandlers.ReplyDeleteHandler)  // GET /replydelete?replyid=...
+	mux.HandleFunc("/replys", replyHandlers.ReplysGetHandler)         // GET /replys?parentid=...
+	mux.HandleFunc("/likecreate", likeHandlers.LikeCreateHandler)     // POST /likecreate (email, post_id)
+	mux.HandleFunc("/likedelete", likeHandlers.LikeDeleteHandler)     // POST /likedelete (postid, email)
+	mux.HandleFunc("/likeget", likeHandlers.LikeGetHandler)           // Get /likeget?email=...
 
 	handler := cors.Default().Handler(mux)
 

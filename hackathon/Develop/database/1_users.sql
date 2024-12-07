@@ -11,4 +11,5 @@ CREATE TABLE users (
 -- 初期データの挿入
 INSERT INTO users (id, name, email) VALUES 
 ('00000000000000000000000001', 'hanako', 'hanako@example.com'),
-('00000000000000000000000002', 'taro', 'taro@example.com');
+('00000000000000000000000002', 'taro', 'taro@example.com'),
+('00000000000000000000000003', 'ichiro', 'ichiro@example.com');
