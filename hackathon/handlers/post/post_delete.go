@@ -6,14 +6,6 @@ import (
 	"net/http"
 )
 
-//リプライも削除する
-//再帰
-//
-//
-//
-//
-//
-
 func PostDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	postId := r.URL.Query().Get("postid")
 	if postId == "" {
@@ -29,12 +21,31 @@ func PostDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 親投稿のIDを取得
+	var parentId *string
+	err = tx.QueryRow("SELECT parent_id FROM posts WHERE id = ?", postId).Scan(&parentId)
+	if err != nil {
+		tx.Rollback()
+		log.Printf("Query parent_id error: %v", err)
+		http.Error(w, "Failed to get parent_id", http.StatusInternalServerError)
+		return
+	}
+
 	// 投稿へのいいねを削除
 	_, err = tx.Exec("DELETE FROM likes WHERE post_id = ?", postId)
 	if err != nil {
 		tx.Rollback()
 		log.Printf("Delete likes error: %v", err)
 		http.Error(w, "Failed to delete likes", http.StatusInternalServerError)
+		return
+	}
+
+	// この投稿を親投稿とする投稿のis_parent_deletedをTrueに設定
+	_, err = tx.Exec("UPDATE posts SET is_parent_deleted = TRUE WHERE parent_id = ?", postId)
+	if err != nil {
+		tx.Rollback()
+		log.Printf("Update is_parent_deleted error: %v", err)
+		http.Error(w, "Failed to update is_parent_deleted", http.StatusInternalServerError)
 		return
 	}
 
@@ -45,6 +56,17 @@ func PostDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Delete post error: %v", err)
 		http.Error(w, "Failed to delete post", http.StatusInternalServerError)
 		return
+	}
+
+	// 親投稿のリプライ数を-1
+	if parentId != nil {
+		_, err = tx.Exec("UPDATE posts SET replys_count = replys_count - 1 WHERE id = ?", *parentId)
+		if err != nil {
+			tx.Rollback()
+			log.Printf("Update replys_count error: %v", err)
+			http.Error(w, "Failed to update replys_count", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	if err = tx.Commit(); err != nil {

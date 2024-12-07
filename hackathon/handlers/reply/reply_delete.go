@@ -6,13 +6,6 @@ import (
 	"net/http"
 )
 
-//リプライへのリプライも削除
-//
-//
-//
-//
-//
-
 func ReplyDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	replyId := r.URL.Query().Get("replyid")
 	if replyId == "" {
@@ -47,6 +40,15 @@ func ReplyDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// このリプライのIDを親投稿IDとする投稿のis_parent_deletedをTrueに設定
+	_, err = tx.Exec("UPDATE posts SET is_parent_deleted = TRUE WHERE parent_id = ?", replyId)
+	if err != nil {
+		tx.Rollback()
+		log.Printf("Update is_parent_deleted error: %v", err)
+		http.Error(w, "Failed to update is_parent_deleted", http.StatusInternalServerError)
+		return
+	}
+
 	// リプライを削除
 	_, err = tx.Exec("DELETE FROM posts WHERE id = ?", replyId)
 	if err != nil {
@@ -72,5 +74,5 @@ func ReplyDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Reply and related likes deleted successfully"))
+	w.Write([]byte("Reply and related likes deleted successfully, and child posts updated"))
 }

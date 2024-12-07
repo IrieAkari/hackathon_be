@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"time"
 
+	"hackathon/handlers/gemini" // TrustScoreReason関数をインポート
+
 	"github.com/oklog/ulid"
 )
 
@@ -41,6 +43,9 @@ func ReplyCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	replyId := ulid.MustNew(ulid.Timestamp(time.Now()), rand.New(rand.NewSource(time.Now().UnixNano()))).String()
 
+	// 信頼度スコアと説明を生成
+	trustScore, trustDescription := gemini.TrustScoreReason(req.Content)
+
 	tx, err := utils.DB.Begin()
 	if err != nil {
 		log.Printf("Transaction begin error: %v", err)
@@ -48,7 +53,7 @@ func ReplyCreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = tx.Exec("INSERT INTO posts (id, user_id, content, parent_id) VALUES (?, ?, ?, ?)", replyId, userId, req.Content, req.ParentId)
+	_, err = tx.Exec("INSERT INTO posts (id, user_id, content, parent_id, trust_score, trust_description) VALUES (?, ?, ?, ?, ?, ?)", replyId, userId, req.Content, req.ParentId, trustScore, trustDescription)
 	if err != nil {
 		tx.Rollback()
 		log.Printf("Insert error: %v", err)
