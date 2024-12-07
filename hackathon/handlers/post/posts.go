@@ -11,6 +11,8 @@ import (
 
 func PostsGetHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.URL.Query().Get("email")
+	name := r.URL.Query().Get("name")
+	userId := r.URL.Query().Get("userid")
 
 	var rows *sql.Rows
 	var err error
@@ -23,6 +25,29 @@ func PostsGetHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "User not found", http.StatusNotFound)
 			return
 		}
+		rows, err = utils.DB.Query(`
+            SELECT posts.id, posts.user_id, users.name AS user_name, posts.content, posts.likes_count, posts.replys_count, posts.created_at, posts.parent_id, posts.is_parent_deleted, posts.trust_score, posts.trust_description
+            FROM posts
+            JOIN users ON posts.user_id = users.id
+            WHERE posts.user_id = ?
+            ORDER BY posts.created_at DESC
+        `, userId)
+	} else if name != "" {
+		var userId string
+		err = utils.DB.QueryRow("SELECT id FROM users WHERE name = ?", name).Scan(&userId)
+		if err != nil {
+			log.Printf("User not found: %v", err)
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+		rows, err = utils.DB.Query(`
+            SELECT posts.id, posts.user_id, users.name AS user_name, posts.content, posts.likes_count, posts.replys_count, posts.created_at, posts.parent_id, posts.is_parent_deleted, posts.trust_score, posts.trust_description
+            FROM posts
+            JOIN users ON posts.user_id = users.id
+            WHERE posts.user_id = ?
+            ORDER BY posts.created_at DESC
+        `, userId)
+	} else if userId != "" {
 		rows, err = utils.DB.Query(`
             SELECT posts.id, posts.user_id, users.name AS user_name, posts.content, posts.likes_count, posts.replys_count, posts.created_at, posts.parent_id, posts.is_parent_deleted, posts.trust_score, posts.trust_description
             FROM posts
