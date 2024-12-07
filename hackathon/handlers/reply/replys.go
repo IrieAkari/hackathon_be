@@ -17,7 +17,7 @@ func ReplysGetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := utils.DB.Query(`
-        SELECT posts.id, posts.user_id, users.name AS user_name, posts.content, posts.likes_count, posts.replys_count, posts.created_at
+        SELECT posts.id, posts.user_id, users.name AS user_name, posts.content, posts.likes_count, posts.replys_count, posts.created_at, posts.is_parent_deleted, posts.trust_score, posts.trust_description
         FROM posts
         JOIN users ON posts.user_id = users.id
         WHERE posts.parent_id = ?
@@ -33,7 +33,7 @@ func ReplysGetHandler(w http.ResponseWriter, r *http.Request) {
 	var replies []models.PostWithUserName
 	for rows.Next() {
 		var reply models.PostWithUserName
-		if err := rows.Scan(&reply.Id, &reply.UserId, &reply.UserName, &reply.Content, &reply.LikesCount, &reply.ReplysCount, &reply.CreatedAt); err != nil {
+		if err := rows.Scan(&reply.Id, &reply.UserId, &reply.UserName, &reply.Content, &reply.LikesCount, &reply.ReplysCount, &reply.CreatedAt, &reply.IsParentDeleted, &reply.TrustScore, &reply.TrustDescription); err != nil {
 			log.Printf("Scan error: %v", err)
 			http.Error(w, "Failed to scan reply", http.StatusInternalServerError)
 			return

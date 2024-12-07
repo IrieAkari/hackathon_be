@@ -24,7 +24,7 @@ func PostsGetHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		rows, err = utils.DB.Query(`
-            SELECT posts.id, posts.user_id, users.name AS user_name, posts.content, posts.likes_count, posts.replys_count, posts.created_at, posts.parent_id
+            SELECT posts.id, posts.user_id, users.name AS user_name, posts.content, posts.likes_count, posts.replys_count, posts.created_at, posts.parent_id, posts.is_parent_deleted, posts.trust_score, posts.trust_description
             FROM posts
             JOIN users ON posts.user_id = users.id
             WHERE posts.user_id = ?
@@ -32,7 +32,7 @@ func PostsGetHandler(w http.ResponseWriter, r *http.Request) {
         `, userId)
 	} else {
 		rows, err = utils.DB.Query(`
-            SELECT posts.id, posts.user_id, users.name AS user_name, posts.content, posts.likes_count, posts.replys_count, posts.created_at, posts.parent_id
+            SELECT posts.id, posts.user_id, users.name AS user_name, posts.content, posts.likes_count, posts.replys_count, posts.created_at, posts.parent_id, posts.is_parent_deleted, posts.trust_score, posts.trust_description
             FROM posts
             JOIN users ON posts.user_id = users.id
             WHERE posts.parent_id IS NULL
@@ -50,7 +50,7 @@ func PostsGetHandler(w http.ResponseWriter, r *http.Request) {
 	var posts []models.PostWithUserName
 	for rows.Next() {
 		var post models.PostWithUserName
-		if err := rows.Scan(&post.Id, &post.UserId, &post.UserName, &post.Content, &post.LikesCount, &post.ReplysCount, &post.CreatedAt, &post.ParentId); err != nil {
+		if err := rows.Scan(&post.Id, &post.UserId, &post.UserName, &post.Content, &post.LikesCount, &post.ReplysCount, &post.CreatedAt, &post.ParentId, &post.IsParentDeleted, &post.TrustScore, &post.TrustDescription); err != nil {
 			log.Printf("Scan error: %v", err)
 			http.Error(w, "Failed to scan post", http.StatusInternalServerError)
 			return
