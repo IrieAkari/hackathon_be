@@ -19,6 +19,7 @@ services:
       MYSQL_USER: irie
       MYSQL_PWD: iriepassword
       MYSQL_HOST: tcp(hackathon_develop_sql:3306)
+      GOOGLE_APPLICATION_CREDENTIALS: "/app/application_default_credentials.json"
     depends_on:
       - hackathon_develop_sql
 
