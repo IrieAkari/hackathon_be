@@ -11,7 +11,7 @@ CREATE TABLE posts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     trust_score INT DEFAULT -1, -- Column to represent trust score
-    trust_description TEXT DEFAULT 'Unassessed', -- Column to represent trust description
+    trust_description TEXT, -- Column to represent trust description
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (parent_id) REFERENCES posts(id)
 );
